@@ -1,0 +1,127 @@
+int tilewidth;
+int tileheight;
+int tilesx;
+int tilesy;
+
+PImage img;
+int halfImage;
+
+void setup() {
+  size(300, 300);
+  // colorMode(HSB);
+  img = loadImage("lenna.png");
+  img.resize(width, height);
+  // frameRate(1);
+  // img.loadPixels();
+  // halfImage = width * height/2;
+  // for (int i = 0; i < halfImage; i++) {
+  //   img.pixels[i+halfImage] = img.pixels[i];
+  // }
+  // img.updatePixels();
+}
+
+
+void draw() {
+  // tilesx = width / int(map(mouseX, 0, width, 10, 1));
+  // tilesy = height / int(map(mouseY, 0, height, 10, 1));
+  tilesx = width / 20;
+  tilesy = height / 40;
+  tilewidth = width / tilesx;
+  tileheight = height / tilesy;
+  // int bgr = int(random(0, 255));
+  // int bgg = int(random(0, 255));
+  // int bgb = int(random(0, 255));
+  // background(bgr, bgg, bgb);
+  background(255);
+  // image(img, 0, 0);
+  
+  noStroke();
+  // fill(255-bgr, 255-bgr, 255-bgr);
+  // ellipse(mouseX, mouseY, 5, 5);
+  
+  translate(float(tilewidth)/2, float(tileheight)/2);
+  // for (int y=0; y<height/tileheight+1; y++) {
+  for (int y=0; y<height/tileheight; y++) {
+    // for (int x=0; x<width/tilewidth+1; x++) {
+    for (int x=0; x<width/tilewidth; x++) {
+      int dx = int(random(0, 5));
+      dx += x * tilewidth;
+      int dy = int(random(0, 5));
+      dy += y * tileheight;
+      int[] nxy = force(dx, dy);
+      dx = nxy[0];
+      dy = nxy[1];
+      // int b = brightness();
+      // int clr = img.get(x, y);
+      int[] inf = pixelinfo(img.get(x, y));
+      int r = inf[0];
+      int g = inf[1];
+      int b = inf[2];
+      int a = inf[3];
+      // int avg = (r + g + b)/3;
+      int avg = int(mean(inf));
+      
+      // int b = brightness(avg / a);
+
+      // println("avg: "+avg, "b: "+b);
+      // println("clr: "+clr);
+      // println("clr: "+hex(clr));
+      // hex(c);
+      // float size = map(brightness(clr), 0, 255,)
+      // float size = map(value, low1, high1, low2, high2);
+      float sizex = map(255-brightness(avg), 0, 255, tilewidth, 4);
+      float sizey = map(255-brightness(avg), 0, 255, tileheight, 4);
+      // fill(clr);
+      // x = x*tilewidth+dx;
+      // y = y*tileheight+dy;
+      fill(r, g, b, a);
+      // ellipse(x, y, sizex, sizey);
+      // ellipse(x*tilewidth+dx, y*tileheight+dy, sizex, sizey);
+      ellipse(dx, dy, sizex, sizey);
+    }
+  }
+}
+int[] force(int x, int y) {
+  int dx = int(map(abs(x-mouseX), 0, width, 100, 0));
+  int dy = int(map(abs(y-mouseY), 0, width, 100, 0));
+  return new int[] {x+dx, y+dy};
+}
+
+int[] pixelinfo(int px) {
+  String clr = hex(px);  
+  int r = clr.charAt(0) + clr.charAt(1);
+  int g = clr.charAt(2) + clr.charAt(3);
+  int b = clr.charAt(4) + clr.charAt(5);
+  int a = clr.charAt(6) + clr.charAt(7);
+  return new int[] {r, g, b, a};
+}
+
+float mean(int[] rack) {
+  float m = 0;
+  for (int o : rack) {
+    m += float(0);
+  }
+  return m / rack.length;
+}
+color localAverage(int x0, int y0) {
+  // int[] px = pixelinfo(img.get(x0, y0));
+  int[] reds = {};
+  int[] greens = {};
+  int[] blues = {};
+  int[] alphas = {};
+  int dx = x0%tilewidth;
+  for (int y = 0; y < tilesy; ++y) {
+    for (int x = 0; x < tilesx; ++x) {
+      int[] px = pixelinfo(img.get(x, y));
+      reds = append(reds, px[0]);
+      greens = append(greens, px[1]);
+      blues = append(blues, px[2]);
+      alphas = append(alphas, px[3]);
+    }
+  }
+  int red = int(mean(reds));
+  int green = int(mean(greens));
+  int blue = int(mean(blues));
+  int alpha = int(mean(alphas));
+  return 1;
+}

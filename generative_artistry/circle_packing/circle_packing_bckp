@@ -1,0 +1,235 @@
+float rmin, rmax, dr, t, dt;
+// int total_circles, creation_attempts, index, sat, light, hu;
+int total_circles, creation_attempts, sat, light, hu;
+color bg;
+// Circle[] circles; //position, radius
+ArrayList<Circle> circles; //position, radius
+color[] colors;
+
+// -16118260, -13822431, -7878728, -7292265, -2498663, -12709098, -13487053, -3490868, -12828605, -8403582, -13752102, -13133838, -4345983, -16246715, -10009277, -3627877, -6220755
+void setup() {
+    size(320, 320);
+    
+    total_circles = 10;
+    // creation_attempts = 500;
+    
+    colors = new color[]{0};
+    circles = new ArrayList<Circle>();
+    // circles = new Circle[total_circles];
+    
+    colorMode(HSB);
+    noStroke();
+    
+    dr = 0.05;
+    dt = 60;
+    
+    // sat = floor(random(0, 101));
+    // light = floor(random(0, 101));
+    hu = floor(random(120, 241));
+    // hue(color);
+    
+    // bg = newColor();
+    // bg = uniqueColor();
+    bg = color(hu, floor(random(0, 256)), floor(random(0, 256)));
+    println(bg);
+    background(bg);
+    colors = append(colors, bg);
+    
+    
+    
+    
+    
+    
+    rmin = 2;
+    rmax = 200;
+    
+    for (int i=0; i<total_circles; i++) {
+        initCircle(i);
+    }
+    println(circles.size());
+}
+
+void draw() {
+    // background(uniqueColor());
+    background(bg);
+    // println(circles.size());
+    
+    for (Circle c : circles) {
+        c.update();
+        c.draw();
+        t += dt;
+        // println(c.r);
+    }
+}
+
+void initCircle(int index) {
+    Circle circle;
+    circle = new Circle(
+        index,
+        floor(random(0, width)), 
+        floor(random(0, height)), 
+        uniqueColor(),
+        rmin
+        // randomGaussian();
+    );
+    // println(circle.x, circle.y, circle.c, circle.r);
+    if (!collides(circle)) {
+        println("made it");
+        circles.add(circle);
+        // circles = append(circles, circle);
+        // circles[index] = circle;
+        colors = append(colors, circle.c);
+        circle.draw();
+    } else {
+        initCircle(index);
+    }
+}
+
+boolean collides(Circle self) {
+    for (Circle other : circles) {
+        if (other.id == self.id) {
+            continue;
+        } else {
+            float dx = other.x - self.x;
+            float dy = other.y - self.y;
+            float ds = sqrt(dx*dx + dy*dy);
+            // float ds = dist(other.x, other.y, self.x, self.y);
+            if (self.r + other.r >= ds*2 || ds==0) {
+                self.c = other.c;
+                // println(other.id, self.id, ds, self.r, other.r);
+                return true;
+            } else if (self.x+self.r >= width || self.x-self.r <= 0) {
+                self.c = other.c;
+                return true;
+            } else if (self.y+self.r >= height || self.y-self.r <= 0) {
+                self.c = other.c;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+boolean used(color c) {
+    if (c == bg) {
+        return true;
+    }
+    for (color col : colors) {
+        if (col == c) {
+            return true;
+        }
+    }
+    return false;
+}
+color uniqueColor() {
+    // color c = color(floor(random(0, 256)), floor(random(0, 256)), floor(random(0, 256)));
+    color c = newColor();
+    while (used(c)) {
+        c = color(floor(random(0, 256)), floor(random(0, 256)), floor(random(0, 256)));
+        // c = newColor();
+    }
+    colors = append(colors, c);
+    return c;
+}
+color newColor() {
+    // color c = color(floor(random(0, 256)), sat, light);
+    color c = color(hu, floor(random(0, 256)), floor(random(0, 256)));
+    // colors = append(colors, c);
+    return c;
+}
+
+int index(color c) {
+    for (int i = 0; i < colors.length; ++i) {
+        if (colors[i] == c) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+boolean bool() {
+    if (random(1) >= .5) {
+        return true;
+    }
+    return false;
+}
+
+class Circle {
+    int x, y, c, id;
+    float r;
+    Circle(int identifier, int ecks, int why, color col, float radius) {
+        this.id = identifier;
+        this.x = ecks;
+        this.y = why;
+        this.c = col;
+        this.r = radius;
+        // if (!collides(this)) {
+        //     circles.add(this);
+        // }
+        // this.draw();
+    }
+    void draw() {
+        if (!collides(this)) {
+            fill(this.c);
+            // arc(this.x, this.y, this.r * 2, this.r, 0, TWO_PI);
+            // ellipse(this.x, this.y, this.r * 2, this.r, 0, TWO_PI);
+            // arc(this.x, this.y, this.r, this.r, 0, TWO_PI);
+            ellipse(this.x, this.y, this.r, this.r);
+            noFill();
+        } else {
+            println("collides");
+        }
+    }
+    void update() {
+        // if (collides(this)) {
+        //     this.r -= dr;
+        //     // this.shake();
+        // } else {
+        //     this.r += dr;
+        // }
+        if (this.r + dr <= rmax) {
+            this.r += dr;
+        }
+        
+        if (collides(this)) {
+            this.r -= dr;
+        }
+        this.draw();
+    }
+    void shake() {
+        if ((t % dt) == 0) {
+            if (bool()) {
+                this.x += bool() ? 1 : -1;
+                this.x %= width;
+            } else {
+                this.y += bool() ? 1 : -1;
+                this.y %= width;
+            }
+        }
+    }
+    int ind() {
+        return index(this.c);
+    }
+}
+
+
+
+
+void consolidate(Circle self, Circle other) {
+    ArrayList<Circle> newCircles = new ArrayList<Circle>();
+    color c = (self.c + other.c) / 2;
+    int x = (self.x + other.x) / 2;
+    int y = (self.y + other.y) / 2;
+    float r = (self.r + other.r) / 2;
+    circles.remove(self.id);
+    circles.remove(other.id);
+    int i = 0;
+    while (i < circles.size()) {
+        if (circles.get(i).id != i) {
+            circles.get(i).id = i;
+            newCircles.add(circles.get(i));
+        }
+        i++;
+    }
+    circles.add(new Circle(circles.size()-1, x, y, c, r));
+}

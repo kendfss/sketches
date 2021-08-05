@@ -1,0 +1,72 @@
+int area, tilewidth, tileheight, tilesx, tilesy, cx, cy, x, y;
+color glob, bg, fg;
+float tiles, tilesize, angle, time, z, r, dr;
+// float tilesize;
+
+
+
+
+// interface
+
+PImage img;
+int halfImage;
+
+void setup() {
+  // size(300, 300);
+  
+  // size(displayWidth, displayHeight);
+  size(displayHeight, displayHeight);
+  // colorMode(HSB);
+  // img = loadImage("../rasterist/lenna_191.png");
+  // img = loadImage("../rasterist/lenna.png");
+  img = loadImage("C:\\Users\\Kenneth\\Pictures\\filterShoppes\\marilyn_2.png");
+  // img = loadImage("C:\\Users\\Kenneth\\Pictures\\filterShoppes\\canvas_17.png");
+  // img = loadImage("canvas_13.pngenna_191.png");
+  // img = loadImage("../rasterist/canvas_21.png");
+  // img = loadImage("futa.jpg");
+  // img = loadImage("marilyn_3.png");
+  img.resize(width, height);
+  area = width * height;
+  angle = 0;
+  cx = x = width/2;
+  cy = y = height/2;
+  r = 1;
+  dr = .1;
+  // imag
+  // glob = globalAverage();
+  // greyscale();
+  frameRate(10);  
+  bg = color(int(random(0, 255)), int(random(0, 255)), int(random(0, 255)));
+  fg = negative(bg);
+  // fill(fg);
+  background(bg);
+  noStroke();
+  // arc(x, y, width, height, start, stop);
+}
+
+void draw() {
+  
+  translate(width / 2, height / 2);
+  
+  float dx = (float(x) - float(cx));
+  float dy = (float(y) - float(cy));
+  float ds = sqrt(pow(x, 2) + pow(y, 2));
+  
+  angle = atan(dy/dx);
+  
+  x = int(r * cos(time));
+  y = int(r * sin(time));
+  // background(negative(img.get(cx + x, cy + y)));
+  fill(img.get(cx + x, cy + y));
+  // fill(negative(img.get(cx + x, cy + y)));
+  ellipse(x, y, 5, 5);
+  println(x, y, dr);
+  if (x<0||width<x||y<0||height<y) {
+    dr *= -1;
+  }
+  
+  time += .1;
+  r += dr;
+  // r = sin(.1 * time);
+  // rotate(angle);
+}
